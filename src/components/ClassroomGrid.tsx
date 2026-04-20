@@ -1,7 +1,7 @@
 import React from 'react';
 import { useDraggable, useDroppable, DndContext } from '@dnd-kit/core';
 import type { DragEndEvent } from '@dnd-kit/core';
-import type { Student, Layout, SeatingPlan, Constraint, HistoryPair } from '../types';
+import type { Student, Layout, SeatingPlan, Constraint } from '../types';
 import { User, AlertTriangle, Monitor, Wind, DoorOpen } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { clsx, type ClassValue } from 'clsx';
