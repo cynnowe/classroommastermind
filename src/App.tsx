@@ -159,7 +159,7 @@ function App() {
           constraints,
           history,
           layout,
-          5000,
+          20000,
           (p) => setProgress(p),
           { separateGenders }
         );
@@ -485,6 +485,7 @@ function App() {
                   history={history} 
                   plan={plan}
                   onPlanChange={setPlan}
+                  separateGenders={separateGenders}
                 />
               </motion.div>
             )}

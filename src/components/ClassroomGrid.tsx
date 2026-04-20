@@ -93,9 +93,9 @@ interface Props {
   onPlanChange: (plan: SeatingPlan) => void;
 }
 
-export const ClassroomGrid: React.FC<Props> = ({ layout, students, constraints, history, plan, onPlanChange }) => {
+export const ClassroomGrid: React.FC<Props & { separateGenders?: boolean }> = ({ layout, students, constraints, history, plan, onPlanChange, separateGenders }) => {
   const studentMap = new Map(students.map(s => [s.id, s]));
-  const score = calculatePenaltyScore(plan, students, constraints, history, layout);
+  const score = calculatePenaltyScore(plan, students, constraints, history, layout, { separateGenders });
 
   // Find the professor's desk row
   const deskCell = Object.values(layout.grid_config.cells).find(c => c.type === 'desk');
@@ -202,7 +202,7 @@ export const ClassroomGrid: React.FC<Props> = ({ layout, students, constraints, 
           </div>
           <div>
             <h3 className="text-sm font-medium text-zinc-500 uppercase tracking-wider">Score de Paix Global</h3>
-            <p className="text-2xl font-bold">{Math.max(0, 10000 - score)} / 10000</p>
+            <p className="text-2xl font-bold">{Math.max(0, 100 - Math.round(score / 200))}%</p>
           </div>
         </div>
         
