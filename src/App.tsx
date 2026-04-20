@@ -307,39 +307,15 @@ function App() {
     }
   };
 
-  const exportPDF = async () => {
+  const exportPDF = () => {
     const gridElement = document.getElementById('classroom-grid-container');
     if (!gridElement) {
       alert("Veuillez vous placer sur l'onglet 'Plan de Classe' pour exporter le PDF.");
       return;
     }
-
-    try {
-      // Ensure element is visible and scrolled into view for capture
-      gridElement.scrollIntoView();
-      
-      const canvas = await html2canvas(gridElement, {
-        scale: 2,
-        useCORS: true,
-        logging: false,
-        backgroundColor: '#ffffff',
-        windowWidth: gridElement.scrollWidth,
-        windowHeight: gridElement.scrollHeight
-      });
-      
-      const imgData = canvas.toDataURL('image/png');
-      const pdf = new jsPDF({
-        orientation: 'landscape',
-        unit: 'px',
-        format: [canvas.width, canvas.height]
-      });
-
-      pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
-      pdf.save(`Plan_Classe_${new Date().toLocaleDateString()}.pdf`);
-    } catch (error) {
-      console.error("PDF Export Error:", error);
-      alert("Erreur lors de la génération du PDF.");
-    }
+    
+    // Simple et infaillible : déclenche l'impression du navigateur
+    window.print();
   };
 
   if (!session && supabase) {

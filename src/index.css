@@ -28,3 +28,38 @@ body {
     background-color: #09090b; /* Dark zinc background */
   }
 }
+
+/* Styles pour l'impression PDF */
+@media print {
+  /* Masquer tout sauf le contenu principal */
+  header, 
+  nav, 
+  .lg\:col-span-4, 
+  button,
+  .no-print {
+    display: none !important;
+  }
+
+  main {
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    max-width: none !important;
+  }
+
+  .lg\:col-span-8 {
+    width: 100% !important;
+  }
+
+  body {
+    background-color: white !important;
+    color: black !important;
+  }
+
+  /* Forcer le plan de classe à prendre toute la page */
+  #classroom-grid-container {
+    box-shadow: none !important;
+    border: none !important;
+    padding: 0 !important;
+  }
+}
