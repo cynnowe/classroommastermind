@@ -87,7 +87,6 @@ interface Props {
   layout: Layout;
   students: Student[];
   constraints: Constraint[];
-  history: HistoryPair[];
   plan: SeatingPlan;
   onPlanChange: (plan: SeatingPlan) => void;
 }
