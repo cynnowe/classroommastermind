@@ -1,6 +1,13 @@
 -- Enable UUID extension
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
+-- Reset (Optional: use only if you want to wipe and restart)
+DROP TABLE IF EXISTS archives CASCADE;
+DROP TABLE IF EXISTS layouts CASCADE;
+DROP TABLE IF EXISTS history_pairs CASCADE;
+DROP TABLE IF EXISTS constraints CASCADE;
+DROP TABLE IF EXISTS students CASCADE;
+
 -- 1. Students table
 CREATE TABLE students (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -38,7 +45,8 @@ CREATE TABLE layouts (
   user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
   name TEXT NOT NULL,
   grid_config JSONB NOT NULL,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  UNIQUE(user_id)
 );
 
 -- 5. Archives table

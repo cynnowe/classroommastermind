@@ -34,7 +34,7 @@ function App() {
   useEffect(() => {
     if (!supabase) return;
 
-    supabase.auth.getSession().then(({ data: { session: s } }) => {
+    supabase.auth.getSession().then(({ data: { session: s } }: any) => {
       setSession(s);
     });
 
@@ -47,14 +47,66 @@ function App() {
 
   // Load from Supabase (or localStorage fallback)
   useEffect(() => {
-    if (!session || !supabase) {
-      const savedStudents = localStorage.getItem('cm_students');
-      const savedLayout = localStorage.getItem('cm_layout');
-      const savedConstraints = localStorage.getItem('cm_constraints');
-      const savedHistory = localStorage.getItem('cm_history');
-      const savedArchives = localStorage.getItem('cm_archives');
+    const fetchData = async () => {
+      // 1. Try to load from Supabase if session exists
+      if (session && supabase) {
+        try {
+          const { data: stds } = await supabase.from('students').select('*');
+          const { data: lay } = await supabase.from('layouts').select('*').maybeSingle();
+          const { data: cons } = await supabase.from('constraints').select('*');
+          const { data: hist } = await supabase.from('history_pairs').select('*');
+          const { data: arch } = await supabase.from('archives').select('*');
 
+          // If we have online students, use them. Otherwise, fallback to local storage
+          if (stds && stds.length > 0) {
+            setStudents(stds);
+          } else {
+            const local = localStorage.getItem('cm_students');
+            if (local) setStudents(JSON.parse(local));
+          }
+
+          if (lay) {
+            setLayout(lay);
+          } else {
+            const localLay = localStorage.getItem('cm_layout');
+            if (localLay) setLayout(JSON.parse(localLay));
+          }
+
+          if (cons && cons.length > 0) {
+            setConstraints(cons);
+          } else {
+            const localCons = localStorage.getItem('cm_constraints');
+            if (localCons) setConstraints(JSON.parse(localCons));
+          }
+
+          if (hist && hist.length > 0) setHistory(hist);
+          
+          if (arch && arch.length > 0) {
+            setArchives(arch.map((a: any) => ({
+              id: a.id,
+              date: a.created_at,
+              plan: a.plan,
+              layout: layout
+            })));
+          } else {
+            const localArch = localStorage.getItem('cm_archives');
+            if (localArch) setArchives(JSON.parse(localArch));
+          }
+          
+          return; // Success, we're done
+        } catch (e) {
+          console.error("Supabase fetch error, falling back to local:", e);
+        }
+      }
+
+      // 2. Fallback to LocalStorage (if not logged in or fetch failed)
       try {
+        const savedStudents = localStorage.getItem('cm_students');
+        const savedLayout = localStorage.getItem('cm_layout');
+        const savedConstraints = localStorage.getItem('cm_constraints');
+        const savedHistory = localStorage.getItem('cm_history');
+        const savedArchives = localStorage.getItem('cm_archives');
+
         if (savedStudents) setStudents(JSON.parse(savedStudents));
         if (savedLayout) setLayout(JSON.parse(savedLayout));
         if (savedConstraints) setConstraints(JSON.parse(savedConstraints));
@@ -63,40 +115,36 @@ function App() {
       } catch (e) {
         console.error("LocalStorage parse error", e);
       }
-      return;
-    }
-    
-    const fetchData = async () => {
-       try {
-         const { data: stds } = await supabase.from('students').select('*');
-         if (stds) setStudents(stds);
-         
-         const { data: lay } = await supabase.from('layouts').select('*').maybeSingle();
-         if (lay) setLayout(lay);
-
-         const { data: cons } = await supabase.from('constraints').select('*');
-         if (cons) setConstraints(cons);
-
-         const { data: hist } = await supabase.from('history_pairs').select('*');
-         if (hist) setHistory(hist);
-         
-         const { data: arch } = await supabase.from('archives').select('*');
-         if (arch) setArchives(arch);
-       } catch (e) {
-         console.error("Fetch error:", e);
-       }
     };
+
     fetchData();
   }, [session]);
 
-  // Backup Save to localStorage
+  // Backup Save to localStorage & Supabase Sync
   useEffect(() => {
+    // 1. Always save to LocalStorage (local safety)
     localStorage.setItem('cm_students', JSON.stringify(students));
     localStorage.setItem('cm_layout', JSON.stringify(layout));
     localStorage.setItem('cm_constraints', JSON.stringify(constraints));
     localStorage.setItem('cm_history', JSON.stringify(history));
     localStorage.setItem('cm_archives', JSON.stringify(archives));
-  }, [students, layout, constraints, history, archives]);
+
+    // 2. Sync to Supabase if connected
+    if (session && supabase) {
+      const syncData = async () => {
+        // Save Layout (single row per user)
+        await supabase.from('layouts').upsert({
+          ...layout,
+          user_id: session.user.id
+        }, { onConflict: 'user_id' });
+        
+        // Note: For performance, complex sync for students/archives 
+        // should ideally be triggered on specific actions (like "Valider" or "Import")
+        // but for now, we'll ensure they are persisted on finalize.
+      };
+      syncData();
+    }
+  }, [students, layout, constraints, history, archives, session]);
 
   const startOptimization = async () => {
     setIsOptimizing(true);
@@ -175,12 +223,64 @@ function App() {
 
     setHistory(updatedHistory);
     
-    // In a real app with Supabase:
-    if (supabase) {
-       // logic to save to DB
+    // 3. Persist to Supabase if session active
+    if (session && supabase) {
+       const user_id = session.user.id;
+       try {
+         // A. Save Layout FIRST
+         const layoutId = layout.id === 'default' ? crypto.randomUUID() : layout.id;
+         const { error: layoutError } = await supabase.from('layouts').upsert({
+           id: layoutId,
+           user_id,
+           name: layout.name,
+           grid_config: layout.grid_config
+         });
+         if (layoutError) throw layoutError;
+
+         // Update local layout ID to avoid recreations
+         setLayout(prev => ({ ...prev, id: layoutId }));
+
+         // B. Sync Students
+         const { error: studentError } = await supabase.from('students').upsert(
+           students.map(s => ({ ...s, user_id }))
+         );
+         if (studentError) throw studentError;
+
+         // C. Sync Constraints
+         const { error: constraintError } = await supabase.from('constraints').upsert(
+           constraints.map(c => ({ ...c, user_id }))
+         );
+         if (constraintError) throw constraintError;
+
+         // D. Sync History
+         const { error: historyError } = await supabase.from('history_pairs').upsert(
+           updatedHistory.map(h => ({ ...h, user_id })),
+           { onConflict: 'user_id, student_a_id, student_b_id' }
+         );
+         if (historyError) throw historyError;
+
+         // E. Sync Archives
+         const { error: archiveError } = await supabase.from('archives').upsert(
+           [...archives, newArchive].map(a => ({
+             id: a.id,
+             user_id,
+             plan: a.plan,
+             layout_id: layoutId,
+             created_at: a.date
+           }))
+         );
+         if (archiveError) throw archiveError;
+
+         // Final state update to match DB structure if needed
+         alert("✅ Félicitations ! Tout est sauvegardé sur votre compte Supabase.");
+       } catch (error: any) {
+         console.error("Détails de l'erreur Supabase:", error);
+         alert(`❌ Erreur de sauvegarde : ${error.message}\n\nVérifiez que vous avez bien lancé le nouveau script SQL dans Supabase.`);
+       }
+    } else {
+      alert("⚠️ Mode Local : Plan archivé sur cet ordinateur uniquement.");
     }
 
-    alert("Plan validé et archivé ! La mémoire de voisinage a été mise à jour pour le prochain calcul.");
     setActiveTab('archives');
   };
 
