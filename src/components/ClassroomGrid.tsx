@@ -3,7 +3,7 @@ import { useDraggable, useDroppable, DndContext } from '@dnd-kit/core';
 import type { DragEndEvent } from '@dnd-kit/core';
 import type { Student, Layout, SeatingPlan, Constraint, HistoryPair } from '../types';
 import { calculatePenaltyScore } from '../lib/optimization';
-import { User, AlertTriangle, ShieldCheck, Monitor, Wind, DoorOpen } from 'lucide-react';
+import { User, AlertTriangle, Monitor, Wind, DoorOpen } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
@@ -95,7 +95,6 @@ interface Props {
 
 export const ClassroomGrid: React.FC<Props & { separateGenders?: boolean }> = ({ layout, students, constraints, history, plan, onPlanChange, separateGenders }) => {
   const studentMap = new Map(students.map(s => [s.id, s]));
-  const score = calculatePenaltyScore(plan, students, constraints, history, layout, { separateGenders });
 
   // Find the professor's desk row
   const deskCell = Object.values(layout.grid_config.cells).find(c => c.type === 'desk');
