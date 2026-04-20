@@ -212,15 +212,17 @@ export const ClassroomGrid: React.FC<Props> = ({ layout, students, constraints, 
 
               if (cell?.type === 'seat' || !cell) {
                 return (
-                  <DroppableCell key={key} cellKey={key} type={cell?.type || 'empty'}>
-                    {student && (
-                      <StudentCard 
-                        student={student} 
-                        cellKey={key} 
-                        hasViolation={violations.has(student.id)} 
+                  <div key={key} className={!student ? 'empty-seat' : ''}>
+                    <DroppableCell cellKey={key} type={cell?.type || 'empty'}>
+                      {student && (
+                        <StudentCard 
+                          student={student} 
+                          cellKey={key} 
+                          hasViolation={violations.has(student.id)} 
                       />
                     )}
                   </DroppableCell>
+                  </div>
                 );
               }
 

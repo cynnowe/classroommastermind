@@ -70,10 +70,11 @@ body {
     fill: none !important;
   }
 
-  /* Masquer les badges d'alerte */
+  /* Masquer les badges d'alerte et les cases vides */
   .alert-icon,
   .grid-stats-banner,
-  .violation-indicator {
+  .violation-indicator,
+  .empty-seat {
     display: none !important;
   }
 
