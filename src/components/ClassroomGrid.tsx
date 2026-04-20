@@ -2,7 +2,6 @@ import React from 'react';
 import { useDraggable, useDroppable, DndContext } from '@dnd-kit/core';
 import type { DragEndEvent } from '@dnd-kit/core';
 import type { Student, Layout, SeatingPlan, Constraint, HistoryPair } from '../types';
-import { calculatePenaltyScore } from '../lib/optimization';
 import { User, AlertTriangle, Monitor, Wind, DoorOpen } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { clsx, type ClassValue } from 'clsx';
@@ -93,7 +92,7 @@ interface Props {
   onPlanChange: (plan: SeatingPlan) => void;
 }
 
-export const ClassroomGrid: React.FC<Props & { separateGenders?: boolean }> = ({ layout, students, constraints, history, plan, onPlanChange, separateGenders }) => {
+export const ClassroomGrid: React.FC<Props> = ({ layout, students, constraints, plan, onPlanChange }) => {
   const studentMap = new Map(students.map(s => [s.id, s]));
 
   // Find the professor's desk row

@@ -482,10 +482,8 @@ function App() {
                   layout={layout} 
                   students={students} 
                   constraints={constraints} 
-                  history={history} 
                   plan={plan}
                   onPlanChange={setPlan}
-                  separateGenders={separateGenders}
                 />
               </motion.div>
             )}
