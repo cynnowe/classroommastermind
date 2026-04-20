@@ -12,8 +12,6 @@ import { runOptimization } from './lib/optimization';
 import { supabase } from './lib/supabase';
 import { Sparkles, Save, Users, Map as MapIcon, History, Settings, LogOut, FileDown } from 'lucide-react';
 import { motion } from 'framer-motion';
-import html2canvas from 'html2canvas';
-import { jsPDF } from 'jspdf';
 
 function App() {
   const [students, setStudents] = useState<Student[]>([]);
