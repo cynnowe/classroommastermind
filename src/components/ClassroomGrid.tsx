@@ -189,6 +189,11 @@ export const ClassroomGrid: React.FC<Props> = ({ layout, students, constraints, 
 
   return (
     <div className="flex flex-col gap-6">
+      {/* Date pour le PDF uniquement */}
+      <div className="hidden print:block text-center mb-6">
+        <h2 className="text-2xl font-bold text-zinc-800">Plan de Classe - {new Date().toLocaleDateString('fr-FR')}</h2>
+      </div>
+
       <DndContext onDragEnd={handleDragEnd}>
         <div 
           className="grid gap-3 p-6 bg-zinc-50 dark:bg-zinc-950 rounded-2xl border border-zinc-200 dark:border-zinc-800 shadow-inner overflow-auto"
