@@ -73,9 +73,13 @@ body {
   /* Masquer les badges d'alerte et les cases vides */
   .alert-icon,
   .grid-stats-banner,
-  .violation-indicator,
-  .empty-seat {
+  .violation-indicator {
     display: none !important;
+  }
+
+  /* Rendre les cases vides invisibles MAIS garder leur emplacement */
+  .empty-seat {
+    visibility: hidden !important;
   }
 
   /* Forcer le plan de classe à prendre toute la page */
