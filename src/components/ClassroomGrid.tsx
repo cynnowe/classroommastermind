@@ -37,7 +37,7 @@ const StudentCard: React.FC<StudentCardProps> = ({ student, cellKey, hasViolatio
       initial={{ scale: 0.8, opacity: 0 }}
       animate={{ scale: 1, opacity: 1 }}
       className={cn(
-        "relative w-full h-full rounded-lg shadow-sm flex flex-col items-center justify-center p-1 cursor-grab active:cursor-grabbing z-20",
+        "relative w-full h-full rounded-lg shadow-sm flex flex-col items-center justify-center p-1 cursor-grab active:cursor-grabbing z-20 student-card",
         isDragging ? "opacity-50" : "opacity-100",
         hasViolation 
           ? "bg-orange-100 border-2 border-orange-500 text-orange-900" 
@@ -47,7 +47,7 @@ const StudentCard: React.FC<StudentCardProps> = ({ student, cellKey, hasViolatio
       <User className={cn("w-5 h-5", student.profil.bavard >= 4 ? "text-red-500" : student.profil.trouble_visuel ? "text-blue-500" : "text-zinc-400")} />
       <span className="text-[10px] font-bold truncate w-full text-center">{student.prenom}</span>
       {hasViolation && (
-        <div className="absolute -top-1 -right-1 bg-orange-500 text-white rounded-full p-0.5">
+        <div className="absolute -top-1 -right-1 bg-orange-500 text-white rounded-full p-0.5 alert-icon">
           <AlertTriangle className="w-2 h-2" />
         </div>
       )}
@@ -192,7 +192,7 @@ export const ClassroomGrid: React.FC<Props> = ({ layout, students, constraints, 
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex items-center justify-between bg-white dark:bg-zinc-900 p-4 rounded-xl border border-zinc-200 dark:border-zinc-800 shadow-sm">
+      <div className="flex items-center justify-between bg-white dark:bg-zinc-900 p-4 rounded-xl border border-zinc-200 dark:border-zinc-800 shadow-sm grid-stats-banner">
         <div className="flex items-center gap-3">
           <div className={cn(
             "p-2 rounded-lg",

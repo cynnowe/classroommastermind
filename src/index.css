@@ -62,4 +62,28 @@ body {
     border: none !important;
     padding: 0 !important;
   }
+
+  /* Rendre le plan NEUTRE pour les élèves */
+  /* Masquer le bandeau de score et les icônes d'alerte */
+  .grid-stats-banner,
+  .alert-icon,
+  .violation-indicator,
+  svg.text-amber-500,
+  svg.text-red-500,
+  svg.text-emerald-500 {
+    display: none !important;
+  }
+
+  /* Forcer toutes les cartes d'élèves à être identiques (blanc/bordure grise) */
+  .student-card {
+    background-color: white !important;
+    border-color: #e5e7eb !important; /* zinc-200 */
+    color: black !important;
+    box-shadow: none !important;
+  }
+
+  /* Masquer les badges de profil (bavard, attention, etc.) */
+  .student-profile-badges {
+    display: none !important;
+  }
 }
