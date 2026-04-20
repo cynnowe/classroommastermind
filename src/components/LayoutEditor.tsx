@@ -1,5 +1,5 @@
 import React from 'react';
-import type { Layout, GridCell, CellType } from '../types';
+import type { Layout, CellType } from '../types';
 import { User, Monitor, DoorOpen, Wind, Trash2, Plus, Minus } from 'lucide-react';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';

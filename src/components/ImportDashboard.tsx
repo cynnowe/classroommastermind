@@ -33,11 +33,14 @@ export const ImportDashboard: React.FC<Props> = ({ onImport }) => {
 
     Papa.parse(file, {
       header: true,
-      complete: (results) => {
+      skipEmptyLines: true,
+      complete: (results: Papa.ParseResult<any>) => {
         try {
-          const importedStudents: Student[] = results.data.map((row: any, index) => {
-            // Validate required fields
-            if (!row.nom || !row.prenom) {
+          const importedStudents: Student[] = results.data.map((row: any, index: number) => {
+            const nom = row.nom || row.Nom || row.lastname;
+            const prenom = row.prenom || row.Prenom || row.firstname;
+            
+            if (!nom || !prenom) {
               throw new Error(`Ligne ${index + 1}: Nom et Prénom sont requis`);
             }
 
@@ -50,9 +53,9 @@ export const ImportDashboard: React.FC<Props> = ({ onImport }) => {
 
             return {
               id: row.id || crypto.randomUUID(),
-              nom: row.nom,
-              prenom: row.prenom,
-              genre: row.genre || 'NB',
+              nom: nom,
+              prenom: prenom,
+              genre: row.genre || row.Genre || row.gender || 'NB',
               profil
             };
           });
@@ -65,7 +68,7 @@ export const ImportDashboard: React.FC<Props> = ({ onImport }) => {
           setSuccess(false);
         }
       },
-      error: (err) => {
+      error: () => {
         setError("Erreur lors de la lecture du fichier CSV");
         setSuccess(false);
       }

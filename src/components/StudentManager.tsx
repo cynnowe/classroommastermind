@@ -1,6 +1,6 @@
 import React from 'react';
 import type { Student } from '../types';
-import { Users, Search, Filter } from 'lucide-react';
+import { Users, Search } from 'lucide-react';
 
 interface Props {
   students: Student[];

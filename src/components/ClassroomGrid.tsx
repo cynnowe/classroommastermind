@@ -4,7 +4,7 @@ import type { DragEndEvent } from '@dnd-kit/core';
 import type { Student, Layout, SeatingPlan, Constraint, HistoryPair } from '../types';
 import { calculatePenaltyScore } from '../lib/optimization';
 import { User, AlertTriangle, ShieldCheck, Monitor, Wind, DoorOpen } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 
