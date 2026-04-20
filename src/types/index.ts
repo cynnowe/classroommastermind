@@ -41,6 +41,7 @@ export interface Layout {
 }
 
 export interface HistoryPair {
+  id?: string;
   student_a_id: string;
   student_b_id: string;
   count_sessions: number;
