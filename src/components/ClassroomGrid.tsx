@@ -192,26 +192,6 @@ export const ClassroomGrid: React.FC<Props & { separateGenders?: boolean }> = ({
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex items-center justify-between bg-white dark:bg-zinc-900 p-4 rounded-xl border border-zinc-200 dark:border-zinc-800 shadow-sm grid-stats-banner">
-        <div className="flex items-center gap-3">
-          <div className={cn(
-            "p-2 rounded-lg",
-            score < 1000 ? "bg-green-100 text-green-700" : score < 5000 ? "bg-orange-100 text-orange-700" : "bg-red-100 text-red-700"
-          )}>
-            <ShieldCheck className="w-6 h-6" />
-          </div>
-          <div>
-            <h3 className="text-sm font-medium text-zinc-500 uppercase tracking-wider">Score de Paix Global</h3>
-            <p className="text-2xl font-bold">{Math.max(0, 100 - Math.round(score / 200))}%</p>
-          </div>
-        </div>
-        
-        <div className="flex gap-4 text-xs font-medium">
-          <div className="flex items-center gap-1"><span className="w-3 h-3 bg-red-500 rounded-full"></span> Bavard</div>
-          <div className="flex items-center gap-1"><span className="w-3 h-3 bg-blue-500 rounded-full"></span> Besoin Spéc.</div>
-        </div>
-      </div>
-
       <DndContext onDragEnd={handleDragEnd}>
         <div 
           className="grid gap-3 p-6 bg-zinc-50 dark:bg-zinc-950 rounded-2xl border border-zinc-200 dark:border-zinc-800 shadow-inner overflow-auto"
