@@ -291,15 +291,40 @@ function App() {
     setActiveTab('archives');
   };
 
+  const deleteArchive = async (id: string) => {
+    if (!confirm("Voulez-vous vraiment supprimer cette archive ?")) return;
+
+    // 1. Update Local State
+    setArchives(archives.filter(a => a.id !== id));
+
+    // 2. Sync with Supabase
+    if (session && supabase) {
+      const { error } = await supabase.from('archives').delete().eq('id', id);
+      if (error) {
+        console.error("Delete error:", error);
+        alert("Erreur lors de la suppression sur le serveur.");
+      }
+    }
+  };
+
   const exportPDF = async () => {
     const gridElement = document.getElementById('classroom-grid-container');
-    if (!gridElement) return;
+    if (!gridElement) {
+      alert("Veuillez vous placer sur l'onglet 'Plan de Classe' pour exporter le PDF.");
+      return;
+    }
 
     try {
+      // Ensure element is visible and scrolled into view for capture
+      gridElement.scrollIntoView();
+      
       const canvas = await html2canvas(gridElement, {
-        scale: 2, // better quality
+        scale: 2,
         useCORS: true,
-        backgroundColor: '#ffffff'
+        logging: false,
+        backgroundColor: '#ffffff',
+        windowWidth: gridElement.scrollWidth,
+        windowHeight: gridElement.scrollHeight
       });
       
       const imgData = canvas.toDataURL('image/png');
@@ -446,7 +471,7 @@ function App() {
                     setLayout(archive.layout);
                     setActiveTab('grid');
                   }}
-                  onDelete={(id) => setArchives(archives.filter(a => a.id !== id))}
+                  onDelete={deleteArchive}
                 />
               </motion.div>
             )}
