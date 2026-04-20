@@ -10,8 +10,10 @@ import { ArchiveViewer } from './components/ArchiveViewer';
 import { Auth } from './components/Auth';
 import { runOptimization } from './lib/optimization';
 import { supabase } from './lib/supabase';
-import { Sparkles, Save, Users, Map as MapIcon, History, Settings, LogOut } from 'lucide-react';
+import { Sparkles, Save, Users, Map as MapIcon, History, Settings, LogOut, FileDown } from 'lucide-react';
 import { motion } from 'framer-motion';
+import html2canvas from 'html2canvas';
+import { jsPDF } from 'jspdf';
 
 function App() {
   const [students, setStudents] = useState<Student[]>([]);
@@ -289,6 +291,32 @@ function App() {
     setActiveTab('archives');
   };
 
+  const exportPDF = async () => {
+    const gridElement = document.getElementById('classroom-grid-container');
+    if (!gridElement) return;
+
+    try {
+      const canvas = await html2canvas(gridElement, {
+        scale: 2, // better quality
+        useCORS: true,
+        backgroundColor: '#ffffff'
+      });
+      
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF({
+        orientation: 'landscape',
+        unit: 'px',
+        format: [canvas.width, canvas.height]
+      });
+
+      pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
+      pdf.save(`Plan_Classe_${new Date().toLocaleDateString()}.pdf`);
+    } catch (error) {
+      console.error("PDF Export Error:", error);
+      alert("Erreur lors de la génération du PDF.");
+    }
+  };
+
   if (!session && supabase) {
     return <Auth />;
   }
@@ -354,6 +382,13 @@ function App() {
               title="Déconnexion"
             >
               <LogOut className="w-5 h-5" />
+            </button>
+            <button 
+              onClick={exportPDF}
+              className="p-2 text-zinc-500 hover:text-indigo-600 transition-colors"
+              title="Exporter en PDF"
+            >
+              <FileDown className="w-6 h-6" />
             </button>
             <button 
               onClick={finalizePlan}
@@ -423,7 +458,12 @@ function App() {
             )}
 
             {activeTab === 'grid' && (
-              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+              <motion.div 
+                id="classroom-grid-container"
+                className="bg-white dark:bg-zinc-950 p-8 rounded-3xl"
+                initial={{ opacity: 0 }} 
+                animate={{ opacity: 1 }}
+              >
                 <ClassroomGrid 
                   layout={layout} 
                   students={students} 
