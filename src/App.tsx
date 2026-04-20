@@ -212,7 +212,12 @@ function App() {
                   count_sessions: updatedHistory[existingIdx].count_sessions + 1
                 };
               } else {
-                updatedHistory.push({ student_a_id: s1Id, student_b_id: nId, count_sessions: 1 });
+                updatedHistory.push({ 
+                  id: crypto.randomUUID(), 
+                  student_a_id: s1Id, 
+                  student_b_id: nId, 
+                  count_sessions: 1 
+                });
               }
               processed.add(pairId);
             }
