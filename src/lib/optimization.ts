@@ -12,19 +12,30 @@ export function calculatePenaltyScore(
   const assignments = plan.assignments;
   const studentMap = new Map(students.map(s => [s.id, s]));
   
-  // Helper to get neighbors of a cell
-  const getNeighbors = (row: number, col: number) => {
+  // Direct neighbors (touching: radius 1)
+  const getDirectNeighbors = (row: number, col: number) => {
     const neighbors: string[] = [];
+    for (let r = row - 1; r <= row + 1; r++) {
+      for (let c = col - 1; c <= col + 1; c++) {
+        if (r === row && c === col) continue;
+        const key = `${r}-${c}`;
+        if (assignments[key]) neighbors.push(assignments[key]);
+      }
+    }
+    return neighbors;
+  };
+
+  // Nearby students (influence: radius 2)
+  const getNearbyStudents = (row: number, col: number) => {
+    const nearby: string[] = [];
     for (let r = row - 2; r <= row + 2; r++) {
       for (let c = col - 2; c <= col + 2; c++) {
         if (r === row && c === col) continue;
         const key = `${r}-${c}`;
-        if (assignments[key]) {
-          neighbors.push(assignments[key]);
-        }
+        if (assignments[key]) nearby.push(assignments[key]);
       }
     }
-    return neighbors;
+    return nearby;
   };
 
   // Helper to check if a cell is near a specific type (window/door)
@@ -48,77 +59,78 @@ export function calculatePenaltyScore(
     if (!student) continue;
 
     const [row, col] = cellKey.split('-').map(Number);
-    const neighbors = getNeighbors(row, col);
+    const directNeighbors = getDirectNeighbors(row, col);
+    const nearbyStudents = getNearbyStudents(row, col);
 
-    // 1. Blacklist (CRITICAL: +5000)
-    for (const neighborId of neighbors) {
+    // 1. Blacklist (CRITICAL: +2000 per violation)
+    // Blacklist is check in a radius of 2 (too close is bad anyway)
+    for (const neighborId of nearbyStudents) {
       const isBlacklisted = constraints.some(c => 
         c.type === 'blacklist' && 
         ((c.student_a_id === studentId && c.student_b_id === neighborId) ||
          (c.student_a_id === neighborId && c.student_b_id === studentId))
       );
-      if (isBlacklisted) score += 5000;
+      if (isBlacklisted) score += 2000;
     }
 
-    // 2. Bavards (SEVERE: +1000)
+    // 2. Bavards (SEVERE: +500)
+    // Only penalty if they are DIRECT neighbors
     if (student.profil.bavard >= 4) {
-      for (const neighborId of neighbors) {
+      for (const neighborId of directNeighbors) {
         const neighbor = studentMap.get(neighborId);
         if (neighbor && neighbor.profil.bavard >= 4) {
-          score += 1000;
+          score += 500;
         }
       }
     }
 
-    // 3. Ergonomie (ERGONOMIE: +800)
-    // "trouble_visuel" placed more than 2 rows away from the desk
+    // 3. Ergonomie (ERGONOMIE: +300)
     const distanceFromFront = Math.abs(row - deskRow);
     if (student.profil.trouble_visuel && distanceFromFront > 1) {
-      score += 800;
+      score += 300;
     }
 
-    // 4. Mémoire (MÉMOIRE: +300 * N)
-    for (const neighborId of neighbors) {
+    // 4. Mémoire (MÉMOIRE: +150 * N)
+    for (const neighborId of directNeighbors) {
       const pastHistory = history.find(h => 
         (h.student_a_id === studentId && h.student_b_id === neighborId) ||
         (h.student_a_id === neighborId && h.student_b_id === studentId)
       );
       if (pastHistory) {
-        score += 300 * pastHistory.count_sessions;
+        score += 150 * pastHistory.count_sessions;
       }
     }
 
-    // 5. Attention (ATTENTION: +400)
-    // near window, door OR talkative student
+    // 5. Attention (ATTENTION: +200)
     if (student.profil.trouble_attention) {
       if (isNearType(row, col, ['window', 'door'])) {
-        score += 400;
+        score += 200;
       }
-      for (const neighborId of neighbors) {
+      for (const neighborId of directNeighbors) {
         const neighbor = studentMap.get(neighborId);
         if (neighbor && neighbor.profil.bavard >= 4) {
-          score += 400;
+          score += 200;
         }
       }
     }
 
-    // 6. Bonus Pedago (BONUS: -200)
-    // "Moteur" neighbor to low "bavardage" student (< 3)
+    // 6. Bonus Pedago (BONUS: -100)
     if (student.profil.moteur) {
-      for (const neighborId of neighbors) {
+      for (const neighborId of directNeighbors) {
         const neighbor = studentMap.get(neighborId);
         if (neighbor && neighbor.profil.bavard < 3) {
-          score -= 200;
+          score -= 100;
         }
       }
     }
 
-    // 7. Mixité Genre (OPTIONNEL: +500)
+    // 7. Mixité Genre (OPTIONNEL: +250)
+    // Only for DIRECT neighbors as requested
     if (options.separateGenders) {
-      for (const neighborId of neighbors) {
+      for (const neighborId of directNeighbors) {
         const neighbor = studentMap.get(neighborId);
         if (neighbor && neighbor.genre === student.genre) {
-          score += 500;
+          score += 250;
         }
       }
     }
