@@ -5,7 +5,8 @@ export function calculatePenaltyScore(
   students: Student[],
   constraints: Constraint[],
   history: HistoryPair[],
-  layout: Layout
+  layout: Layout,
+  options: { separateGenders?: boolean } = {}
 ): number {
   let score = 0;
   const assignments = plan.assignments;
@@ -111,6 +112,16 @@ export function calculatePenaltyScore(
         }
       }
     }
+
+    // 7. Mixité Genre (OPTIONNEL: +500)
+    if (options.separateGenders) {
+      for (const neighborId of neighbors) {
+        const neighbor = studentMap.get(neighborId);
+        if (neighbor && neighbor.genre === student.genre) {
+          score += 500;
+        }
+      }
+    }
   }
 
   return score;
@@ -122,7 +133,8 @@ export function runOptimization(
   history: HistoryPair[],
   layout: Layout,
   iterations: number = 5000,
-  onProgress?: (progress: number, currentScore: number) => void
+  onProgress?: (progress: number, currentScore: number) => void,
+  options: { separateGenders?: boolean } = {}
 ): SeatingPlan {
   // Get all available seats
   const seatKeys = Object.entries(layout.grid_config.cells)
@@ -142,7 +154,7 @@ export function runOptimization(
     }
   });
 
-  let currentScore = calculatePenaltyScore(currentPlan, students, constraints, history, layout);
+  let currentScore = calculatePenaltyScore(currentPlan, students, constraints, history, layout, options);
 
   for (let i = 0; i < iterations; i++) {
     // Pick two random seats and swap them (or move to empty seat)
@@ -161,7 +173,7 @@ export function runOptimization(
     if (s1) newAssignments[key2] = s1; else delete newAssignments[key2];
 
     const newPlan = { assignments: newAssignments };
-    const newScore = calculatePenaltyScore(newPlan, students, constraints, history, layout);
+    const newScore = calculatePenaltyScore(newPlan, students, constraints, history, layout, options);
 
     if (newScore < currentScore) {
       currentPlan = newPlan;

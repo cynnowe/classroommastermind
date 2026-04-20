@@ -26,6 +26,7 @@ function App() {
   const [session, setSession] = useState<any>(null);
   const [isOptimizing, setIsOptimizing] = useState(false);
   const [progress, setProgress] = useState(0);
+  const [separateGenders, setSeparateGenders] = useState(false);
   const [activeTab, setActiveTab] = useState<'import' | 'layout' | 'students' | 'grid' | 'archives'>('import');
   const [editingStudent, setEditingStudent] = useState<Student | null>(null);
   const [archives, setArchives] = useState<any[]>([]);
@@ -159,7 +160,8 @@ function App() {
           history,
           layout,
           5000,
-          (p) => setProgress(p)
+          (p) => setProgress(p),
+          { separateGenders }
         );
         setPlan(optimizedPlan);
         setActiveTab('grid');
@@ -365,7 +367,20 @@ function App() {
             </button>
           </div>
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-6">
+            <label className="flex items-center gap-2 cursor-pointer group no-print">
+              <div className="relative">
+                <input 
+                  type="checkbox" 
+                  className="sr-only peer"
+                  checked={separateGenders}
+                  onChange={(e) => setSeparateGenders(e.target.checked)}
+                />
+                <div className="w-10 h-5 bg-zinc-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-indigo-300 dark:peer-focus:ring-indigo-800 rounded-full peer dark:bg-zinc-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-gray-600 peer-checked:bg-indigo-600"></div>
+              </div>
+              <span className="text-sm font-medium text-zinc-600 dark:text-zinc-400 group-hover:text-indigo-600 transition-colors">Mixité F/G</span>
+            </label>
+
             {students.length > 0 && (
               <button 
                 onClick={startOptimization}
