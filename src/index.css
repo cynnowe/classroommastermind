@@ -51,39 +51,35 @@ body {
     width: 100% !important;
   }
 
-  body {
-    background-color: white !important;
+  /* === NEUTRALISATION TOTALE DES COULEURS === */
+  /* Forcer absolument tout en noir sur blanc */
+  *,
+  *::before,
+  *::after {
     color: black !important;
+    background-color: white !important;
+    border-color: #e5e7eb !important;
+    box-shadow: none !important;
+    text-decoration-color: black !important;
+  }
+
+  /* Forcer les SVG (icônes Lucide) à être noirs */
+  svg {
+    color: black !important;
+    stroke: black !important;
+    fill: none !important;
+  }
+
+  /* Masquer les badges d'alerte */
+  .alert-icon,
+  .grid-stats-banner,
+  .violation-indicator {
+    display: none !important;
   }
 
   /* Forcer le plan de classe à prendre toute la page */
   #classroom-grid-container {
-    box-shadow: none !important;
     border: none !important;
     padding: 0 !important;
-  }
-
-  /* Rendre le plan NEUTRE pour les élèves */
-  /* Masquer le bandeau de score et les icônes d'alerte */
-  .grid-stats-banner,
-  .alert-icon,
-  .violation-indicator,
-  svg.text-amber-500,
-  svg.text-red-500,
-  svg.text-emerald-500 {
-    display: none !important;
-  }
-
-  /* Forcer toutes les cartes d'élèves à être identiques (blanc/bordure grise) */
-  .student-card {
-    background-color: white !important;
-    border-color: #e5e7eb !important; /* zinc-200 */
-    color: black !important;
-    box-shadow: none !important;
-  }
-
-  /* Masquer les badges de profil (bavard, attention, etc.) */
-  .student-profile-badges {
-    display: none !important;
   }
 }
